@@ -7,8 +7,8 @@ import (
 	"github.com/nikiandr/golang-todo-app/pkg/handler"
 	"github.com/nikiandr/golang-todo-app/pkg/repository"
 	"github.com/nikiandr/golang-todo-app/pkg/service"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
@@ -19,12 +19,15 @@ func initConfig() error {
 }
 
 func main() {
+	//setting up logger from logrus package to JSON format
+	logrus.SetFormatter(new(logrus.JSONFormatter))
+
 	if err := initConfig(); err != nil {
-		log.Fatalf("Error reading YAML configs: %s", err.Error())
+		logrus.Fatalf("Error reading YAML configs: %s", err.Error())
 	}
 
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error reading .env configs: %s", err.Error())
+		logrus.Fatalf("Error reading .env configs: %s", err.Error())
 	}
 
 	db, err := repository.NewPostgresDB(repository.Config{
@@ -37,7 +40,7 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatalf("Error occured while connecting to DB server: %s", err.Error())
+		logrus.Fatalf("Error occured while connecting to DB server: %s", err.Error())
 	}
 
 	repos := repository.NewRepository(db)
@@ -46,6 +49,6 @@ func main() {
 
 	srv := new(todo.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		log.Fatalf("Error occured while running http server: %s", err.Error())
+		logrus.Fatalf("Error occured while running http server: %s", err.Error())
 	}
 }
