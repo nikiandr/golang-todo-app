@@ -1,18 +1,19 @@
 package service
 
 import (
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/nikiandr/golang-todo-app"
 	"github.com/nikiandr/golang-todo-app/pkg/repository"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
+	"os"
 	"time"
 )
 
 //JWT token validity in hours
 const (
 	jwtValidityTime = 24
-	signingKey      = "d%jfoi2@e12u89$yurui#13fheh"
 )
 
 type tokenClaims struct {
@@ -45,7 +46,6 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		return "", err
 	}
 
-	logrus.Println(user.Password)
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		logrus.Errorf("Wrong password: %s", err.Error())
@@ -59,7 +59,7 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		},
 		user.Id,
 	})
-	return token.SignedString([]byte(signingKey))
+	return token.SignedString([]byte(os.Getenv("JWT_SIGNING_SECRET")))
 }
 
 func (s *AuthService) generatePasswordHash(password string) (string, error) {
@@ -69,4 +69,24 @@ func (s *AuthService) generatePasswordHash(password string) (string, error) {
 		return "", err
 	}
 	return string(hash), nil
+}
+
+func (s *AuthService) ParseToken(token string) (int, error) {
+	parsedToken, err := jwt.ParseWithClaims(token, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+		return []byte(os.Getenv("JWT_SIGNING_SECRET")), nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	claims, ok := parsedToken.Claims.(*tokenClaims)
+	if !ok {
+		return 0, errors.New("token claims are unvalid")
+	}
+
+	return claims.UserId, nil
 }
