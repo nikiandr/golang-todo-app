@@ -2,13 +2,32 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/nikiandr/golang-todo-app"
 	"net/http"
 )
 
 func (h *Handler) createList(c *gin.Context) {
-	id, _ := c.Get(userCtx)
+	userId, err := getUserId(c)
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	var input todo.List
+	if err := c.BindJSON(&input); err != nil {
+		NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var listId int
+	listId, err = h.services.List.Create(userId, input)
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+		"id": listId,
 	})
 }
 

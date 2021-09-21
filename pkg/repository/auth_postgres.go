@@ -6,15 +6,15 @@ import (
 	todo "github.com/nikiandr/golang-todo-app"
 )
 
-type AuthSql struct {
+type AuthPostgres struct {
 	db *sqlx.DB
 }
 
-func NewAuthSql(db *sqlx.DB) *AuthSql {
-	return &AuthSql{db: db}
+func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
+	return &AuthPostgres{db: db}
 }
 
-func (r *AuthSql) CreateUser(user todo.User) (int, error) {
+func (r *AuthPostgres) CreateUser(user todo.User) (int, error) {
 	var id int
 	query := fmt.Sprintf("INSERT INTO %s (name, surname, username, password_hash) VALUES ($1, $2, $3, $4) RETURNING id",
 		usersTable)
@@ -27,7 +27,7 @@ func (r *AuthSql) CreateUser(user todo.User) (int, error) {
 	return id, nil
 }
 
-func (r *AuthSql) GetUser(username string) (todo.User, error) {
+func (r *AuthPostgres) GetUser(username string) (todo.User, error) {
 	var user todo.User
 	query := fmt.Sprintf("SELECT id, password_hash from %s WHERE username=$1", usersTable)
 	err := r.db.Get(&user, query, username)
