@@ -23,8 +23,6 @@ func main() {
 	//setting up logger from logrus package to JSON format
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 
-	logrus.Printf("Port: %s", os.Getenv("PORT"))
-
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("Error reading YAML configs: %s", err.Error())
 	}
