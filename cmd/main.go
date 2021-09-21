@@ -37,6 +37,8 @@ func main() {
 		err       error
 	)
 
+	logrus.Warningf(os.Getenv("DATABASE_URL"))
+
 	if dbAuthStr = os.Getenv("DATABASE_URL"); dbAuthStr == "" {
 		db, err = repository.NewPostgresDB(repository.Config{
 			Host:     viper.GetString("db.host"),
