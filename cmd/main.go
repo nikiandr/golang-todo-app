@@ -28,7 +28,7 @@ func main() {
 	}
 
 	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("Error reading .env configs: %s", err.Error())
+		logrus.Warningf("Error reading .env configs: %s", err.Error())
 	}
 
 	var (
