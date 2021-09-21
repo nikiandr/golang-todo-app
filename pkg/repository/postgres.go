@@ -31,3 +31,13 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 
 	return db, nil
 }
+
+func NewPostgresDBAuthString(auth string) (*sqlx.DB, error) {
+	db, err := sqlx.Connect("postgres", fmt.Sprintf(auth))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}

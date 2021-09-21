@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/nikiandr/golang-todo-app"
@@ -30,14 +31,24 @@ func main() {
 		logrus.Fatalf("Error reading .env configs: %s", err.Error())
 	}
 
-	db, err := repository.NewPostgresDB(repository.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-	})
+	var (
+		dbAuthStr string
+		db        *sqlx.DB
+		err       error
+	)
+
+	if dbAuthStr = os.Getenv("DATABASE_URL"); dbAuthStr == "" {
+		db, err = repository.NewPostgresDB(repository.Config{
+			Host:     viper.GetString("db.host"),
+			Port:     viper.GetString("db.port"),
+			Username: viper.GetString("db.username"),
+			Password: os.Getenv("DB_PASSWORD"),
+			DBName:   viper.GetString("db.dbname"),
+			SSLMode:  viper.GetString("db.sslmode"),
+		})
+	} else {
+		db, err = repository.NewPostgresDBAuthString(dbAuthStr)
+	}
 
 	if err != nil {
 		logrus.Fatalf("Error occured while connecting to DB server: %s", err.Error())
