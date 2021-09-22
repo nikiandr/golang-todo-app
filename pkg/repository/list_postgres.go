@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/nikiandr/golang-todo-app"
+	"github.com/pkg/errors"
 )
 
 type ListPostgres struct {
@@ -24,16 +25,32 @@ func (r *ListPostgres) Create(userId int, list todo.List) (int, error) {
 	createListQuery := fmt.Sprintf("INSERT INTO %s (title, description) VALUES ($1, $2) RETURNING id", listsTable)
 	row := tx.QueryRow(createListQuery, list.Title, list.Description)
 	if err := row.Scan(&id); err != nil {
-		tx.Rollback()
+		errRoll := tx.Rollback()
+		if errRoll != nil {
+			return 0, errors.Errorf("Two errors with DB: №1 (%s) and №2 (%s)", err.Error(), errRoll.Error())
+		}
 		return 0, err
 	}
 
 	createUsersListQuery := fmt.Sprintf("INSERT INTO %s (user_id, list_id) VALUES ($1, $2)", usersListTable)
 	_, err = tx.Exec(createUsersListQuery, userId, id)
 	if err != nil {
-		tx.Rollback()
+		errRoll := tx.Rollback()
+		if errRoll != nil {
+			return 0, errors.Errorf("Two errors with DB: №1 (%s) and №2 (%s)", err.Error(), errRoll.Error())
+		}
 		return 0, err
 	}
 
 	return id, tx.Commit()
+}
+
+func (r *ListPostgres) GetAll(userId int) ([]todo.List, error) {
+	var lists []todo.List
+
+	query := fmt.Sprintf("SELECT t1.id, t1.title, t1.description FROM %s t1 INNER JOIN %s t2 ON t1.id = t2.list_id WHERE t2.user_id = $1",
+		listsTable, usersListTable)
+	err := r.db.Select(&lists, query, userId)
+
+	return lists, err
 }
