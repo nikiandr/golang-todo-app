@@ -14,6 +14,7 @@ type List interface {
 	Create(userId int, list todo.List) (int, error)
 	GetAll(userId int) ([]todo.List, error)
 	GetById(userId, listId int) (todo.List, error)
+	Delete(userId, listId int) error
 }
 
 type Item interface {

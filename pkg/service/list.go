@@ -21,6 +21,10 @@ func (s *TodoListService) GetById(userId, listId int) (todo.List, error) {
 	return s.repo.GetById(userId, listId)
 }
 
+func (s *TodoListService) Delete(userId, listId int) error {
+	return s.repo.Delete(userId, listId)
+}
+
 func NewTodoListService(repo repository.List) *TodoListService {
 	return &TodoListService{repo: repo}
 }

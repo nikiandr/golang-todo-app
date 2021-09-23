@@ -72,7 +72,9 @@ func (h *Handler) getListById(c *gin.Context) {
 		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	c.JSON(http.StatusOK, list)
+	if list != *new(todo.List) {
+		c.JSON(http.StatusOK, list)
+	}
 }
 
 func (h *Handler) updateList(c *gin.Context) {
@@ -80,5 +82,23 @@ func (h *Handler) updateList(c *gin.Context) {
 }
 
 func (h *Handler) deleteList(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.services.List.Delete(userId, id)
+	if err != nil {
+		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+	})
 }

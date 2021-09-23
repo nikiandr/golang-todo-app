@@ -64,3 +64,10 @@ func (r *ListPostgres) GetById(userId, listId int) (todo.List, error) {
 
 	return list, err
 }
+
+func (r *ListPostgres) Delete(userId, listId int) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id IN (SELECT list_id FROM %s WHERE list_id = $1 AND user_id = $2)", listsTable, usersListTable)
+	_, err := r.db.Exec(query, listId, userId)
+
+	return err
+}
