@@ -58,7 +58,8 @@ func (r *ListPostgres) GetAll(userId int) ([]todo.List, error) {
 func (r *ListPostgres) GetById(userId, listId int) (todo.List, error) {
 	var list todo.List
 
-	query := fmt.Sprintf("SELECT t1.id, t1.title, t1.description FROM %s t1 INNER JOIN %s t2 ON t1.id = t2.list_id WHERE t2.user_id = $1 AND t1.id = $2",
+	query := fmt.Sprintf("SELECT t1.id, t1.title, t1.description FROM %s t1 INNER JOIN %s t2 "+
+		"ON t1.id = t2.list_id WHERE t2.user_id = $1 AND t1.id = $2",
 		listsTable, usersListTable)
 	err := r.db.Get(&list, query, userId, listId)
 
@@ -68,8 +69,19 @@ func (r *ListPostgres) GetById(userId, listId int) (todo.List, error) {
 func (r *ListPostgres) Delete(userId, listId int) error {
 	var delListId int
 
-	query := fmt.Sprintf("DELETE FROM %s WHERE id IN (SELECT list_id FROM %s WHERE list_id = $1 AND user_id = $2) RETURNING id", listsTable, usersListTable)
+	query := fmt.Sprintf("DELETE FROM %s WHERE id IN (SELECT list_id FROM %s WHERE list_id = $1 AND "+
+		"user_id = $2) RETURNING id", listsTable, usersListTable)
 	err := r.db.Get(&delListId, query, listId, userId)
+
+	return err
+}
+
+func (r *ListPostgres) Update(update todo.List, userId, listId int) error {
+	var upListId int
+
+	query := fmt.Sprintf("UPDATE %s SET title = $1, description = $2 WHERE id IN "+
+		"(SELECT list_id FROM %s WHERE list_id = $3 AND user_id = $4) RETURNING id", listsTable, usersListTable)
+	err := r.db.Get(&upListId, query, update.Title, update.Description, listId, userId)
 
 	return err
 }

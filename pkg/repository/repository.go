@@ -15,6 +15,7 @@ type List interface {
 	GetAll(userId int) ([]todo.List, error)
 	GetById(userId, listId int) (todo.List, error)
 	Delete(userId, listId int) error
+	Update(update todo.List, userId, listId int) error
 }
 
 type Item interface {
