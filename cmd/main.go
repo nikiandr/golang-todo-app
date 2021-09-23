@@ -20,7 +20,7 @@ func initConfig() error {
 }
 
 func main() {
-	//setting up logger from logrus package to JSON format
+	//setting up logger JSON format
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 
 	if err := initConfig(); err != nil {
