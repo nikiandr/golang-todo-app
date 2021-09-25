@@ -13,7 +13,7 @@ type UsersList struct {
 }
 
 type Item struct {
-	Id          int    `json:"id"`
+	Id          int    `json:"id" `
 	ListId      int    `json:"-"`
 	Title       string `json:"title"`
 	Description string `json:"description"`

@@ -15,7 +15,7 @@ func NewListPostgres(db *sqlx.DB) *ListPostgres {
 	return &ListPostgres{db: db}
 }
 
-func (r *ListPostgres) Create(userId int, list todo.List) (int, error) {
+func (r *ListPostgres) CreateList(userId int, list todo.List) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return 0, err
@@ -45,7 +45,7 @@ func (r *ListPostgres) Create(userId int, list todo.List) (int, error) {
 	return id, tx.Commit()
 }
 
-func (r *ListPostgres) GetAll(userId int) ([]todo.List, error) {
+func (r *ListPostgres) GetAllLists(userId int) ([]todo.List, error) {
 	var lists []todo.List
 
 	query := fmt.Sprintf("SELECT t1.id, t1.title, t1.description FROM %s t1 INNER JOIN %s t2 ON t1.id = t2.list_id WHERE t2.user_id = $1",
@@ -55,7 +55,7 @@ func (r *ListPostgres) GetAll(userId int) ([]todo.List, error) {
 	return lists, err
 }
 
-func (r *ListPostgres) GetById(userId, listId int) (todo.List, error) {
+func (r *ListPostgres) GetListById(userId, listId int) (todo.List, error) {
 	var list todo.List
 
 	query := fmt.Sprintf("SELECT t1.id, t1.title, t1.description FROM %s t1 INNER JOIN %s t2 "+
@@ -66,7 +66,7 @@ func (r *ListPostgres) GetById(userId, listId int) (todo.List, error) {
 	return list, err
 }
 
-func (r *ListPostgres) Delete(userId, listId int) error {
+func (r *ListPostgres) DeleteList(userId, listId int) error {
 	var delListId int
 
 	query := fmt.Sprintf("DELETE FROM %s WHERE id IN (SELECT list_id FROM %s WHERE list_id = $1 AND "+
@@ -76,7 +76,7 @@ func (r *ListPostgres) Delete(userId, listId int) error {
 	return err
 }
 
-func (r *ListPostgres) Update(update todo.List, userId, listId int) error {
+func (r *ListPostgres) UpdateList(update todo.List, userId, listId int) error {
 	var upListId int
 
 	query := fmt.Sprintf("UPDATE %s SET title = $1, description = $2 WHERE id IN "+

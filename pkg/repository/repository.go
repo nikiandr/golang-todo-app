@@ -11,14 +11,15 @@ type Authorization interface {
 }
 
 type List interface {
-	Create(userId int, list todo.List) (int, error)
-	GetAll(userId int) ([]todo.List, error)
-	GetById(userId, listId int) (todo.List, error)
-	Delete(userId, listId int) error
-	Update(update todo.List, userId, listId int) error
+	CreateList(userId int, list todo.List) (int, error)
+	GetAllLists(userId int) ([]todo.List, error)
+	GetListById(userId, listId int) (todo.List, error)
+	DeleteList(userId, listId int) error
+	UpdateList(update todo.List, userId, listId int) error
 }
 
 type Item interface {
+	CreateItem(userId, listId int, curItem todo.Item) (int, error)
 }
 
 type Repository struct {
@@ -31,5 +32,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		List:          NewListPostgres(db),
+		Item:          NewItemPostgres(db),
 	}
 }

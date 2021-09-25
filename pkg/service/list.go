@@ -9,24 +9,24 @@ type TodoListService struct {
 	repo repository.List
 }
 
-func (s *TodoListService) Create(userId int, list todo.List) (int, error) {
-	return s.repo.Create(userId, list)
+func (s *TodoListService) CreateList(userId int, list todo.List) (int, error) {
+	return s.repo.CreateList(userId, list)
 }
 
-func (s *TodoListService) GetAll(userId int) ([]todo.List, error) {
-	return s.repo.GetAll(userId)
+func (s *TodoListService) GetAllLists(userId int) ([]todo.List, error) {
+	return s.repo.GetAllLists(userId)
 }
 
-func (s *TodoListService) GetById(userId, listId int) (todo.List, error) {
-	return s.repo.GetById(userId, listId)
+func (s *TodoListService) GetListById(userId, listId int) (todo.List, error) {
+	return s.repo.GetListById(userId, listId)
 }
 
-func (s *TodoListService) Delete(userId, listId int) error {
-	return s.repo.Delete(userId, listId)
+func (s *TodoListService) DeleteList(userId, listId int) error {
+	return s.repo.DeleteList(userId, listId)
 }
 
-func (s *TodoListService) Update(update todo.List, userId, listId int) error {
-	return s.repo.Update(update, userId, listId)
+func (s *TodoListService) UpdateList(update todo.List, userId, listId int) error {
+	return s.repo.UpdateList(update, userId, listId)
 }
 
 func NewTodoListService(repo repository.List) *TodoListService {
