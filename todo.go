@@ -15,7 +15,7 @@ type UsersList struct {
 type Item struct {
 	Id          int    `json:"id" db:"id"`
 	ListId      int    `json:"-" db:"list_id"`
-	Title       string `json:"title" db:"title"`
+	Title       string `json:"title" db:"title" binding:"required"`
 	Description string `json:"description" db:"description"`
-	Done        bool   `json:"done" db:"done"`
+	Done        bool   `json:"done" db:"done" binding:"required"`
 }

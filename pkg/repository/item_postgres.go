@@ -44,8 +44,49 @@ func (r *ItemPostgres) GetAllItems(userId, listId int) ([]todo.Item, error) {
 
 	err := r.db.Select(&items, query, userId, listId)
 	if err != nil {
-		return items, err
+		return nil, err
 	}
 
 	return items, nil
+}
+
+func (r *ItemPostgres) GetItemById(userId, listId, itemId int) (todo.Item, error) {
+	var item todo.Item
+
+	query := fmt.Sprintf("SELECT i.id, i.list_id, i.title, i.description, i.done "+
+		"FROM (%s u INNER JOIN %s i ON u.list_id = i.list_id) "+
+		"WHERE u.user_id = $1 AND i.list_id = $2 AND i.id = $3", usersListTable, itemsTable)
+	err := r.db.Get(&item, query, userId, listId, itemId)
+	if err != nil {
+		return todo.Item{}, err
+	}
+	return item, nil
+}
+
+func (r *ItemPostgres) UpdateItem(update todo.Item, userId, listId, itemId int) error {
+	var resUserId int
+
+	query := fmt.Sprintf("UPDATE %s SET title = $1, description = $2, done = $3 "+
+		"WHERE id IN (SELECT i.id FROM (%s u INNER JOIN %s i ON u.list_id = i.list_id) "+
+		"WHERE u.user_id = $4 AND i.list_id = $5 AND i.id = $6) RETURNING id", itemsTable, usersListTable, itemsTable)
+	err := r.db.Get(&resUserId, query, update.Title, update.Description, update.Done, userId, listId, itemId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *ItemPostgres) DeleteItem(userId, listId, itemId int) error {
+	var resUserId int
+
+	query := fmt.Sprintf("DELETE FROM %s WHERE id IN "+
+		"(SELECT i.id FROM (%s u INNER JOIN %s i ON u.list_id = i.list_id) "+
+		"WHERE u.user_id = $1 AND i.list_id = $2 AND i.id = $3) RETURNING id", itemsTable, usersListTable, itemsTable)
+	err := r.db.Get(&resUserId, query, userId, listId, itemId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
