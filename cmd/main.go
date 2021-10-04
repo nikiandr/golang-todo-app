@@ -47,7 +47,7 @@ func main() {
 			Username: viper.GetString("db.username"),
 			Password: os.Getenv("DB_PASSWORD"),
 			DBName:   viper.GetString("db.dbname"),
-			SSLMode:  viper.GetString("db.sslmode"),
+			SSLMode:  viper.GetString("db.ssl_mode"),
 		})
 	} else {
 		db, err = repository.NewPostgresDBAuthString(dbAuthStr)

@@ -17,5 +17,5 @@ type Item struct {
 	ListId      int    `json:"-" db:"list_id"`
 	Title       string `json:"title" db:"title" binding:"required"`
 	Description string `json:"description" db:"description"`
-	Done        bool   `json:"done" db:"done" binding:"required"`
+	Done        bool   `json:"done" db:"done"`
 }
